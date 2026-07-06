@@ -2,6 +2,8 @@ Param(
 	[Parameter(ValueFromPipeline)][String]$FILE_NAME
 )
 
+[string]$GREEN="`e[32m"
+[string]$RESET="`e[0m"
 [string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
 [int]$DIAL=50
 [int]$COUNT=0
@@ -21,4 +23,4 @@ foreach ($line in [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) {
   }
 }
 
-"`e[32mFINAL Count is: $COUNT`e[0m"
+"${GREEN}FINAL Count is: $COUNT${RESET}"

@@ -4,7 +4,8 @@ Param(
 )
 
 #DEBUG function take long time to process, so if comented all DEBUG function calls this code will be much faster
-
+[string]$GREEN="`e[32m"
+[string]$RESET="`e[0m"
 [string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
 [int]$DIAL=50
 [int]$COUNT=0
@@ -57,4 +58,4 @@ foreach ($lines in [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)){
   }
 }
 
-"`e[32mFINAL Count is: $COUNT`e[0m"
+"${GREEN}FINAL Count is: $COUNT${RESET}"

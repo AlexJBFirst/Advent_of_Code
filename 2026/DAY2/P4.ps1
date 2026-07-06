@@ -2,7 +2,9 @@ Param(
 	[Parameter(ValueFromPipeline)][String]$FILE_NAME
 )
 
-$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
+[string]$GREEN="`e[32m"
+[string]$RESET="`e[0m"
+[string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
 [int64]$ID_COUNT=0
 
 foreach ($item in $([System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) -split ','){
@@ -18,4 +20,4 @@ foreach ($item in $([System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) -split ','){
 
 }
 
-"`e[32mInvalid IDS SUM: $ID_COUNT`e[0m"
+Write-Output "${GREEN}Invalid IDS SUM: $ID_COUNT${RESET}"
