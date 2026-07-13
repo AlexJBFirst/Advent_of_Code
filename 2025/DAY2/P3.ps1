@@ -1,13 +1,13 @@
 Param(
-	[Parameter(ValueFromPipeline, Position=0)][String]$FILE_NAME
+  [Parameter(ValueFromPipeline, Position = 0)][String]$FILE_NAME
 )
 
-[string]$GREEN="`e[32m"
-[string]$RESET="`e[0m"
+[string]$GREEN = "`e[32m"
+[string]$RESET = "`e[0m"
 [string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
-[int64]$ID_COUNT=0
+[int64]$ID_COUNT = 0
 
-foreach ($item in $([System.IO.File]::ReadAllLines($ABSOLUTE_PATH) -split "[`r`n,]+" | Where-Object { $_.Length -gt 0})){
+foreach ($item in $([System.IO.File]::ReadAllLines($ABSOLUTE_PATH) -split "[`r`n,]+" | Where-Object { $_.Length -gt 0 })) {
   [int64]$FLOOR, [int64]$CEILING = $item -split '-'
   
   if ($FLOOR -gt $CEILING) { continue }
@@ -24,7 +24,7 @@ foreach ($item in $([System.IO.File]::ReadAllLines($ABSOLUTE_PATH) -split "[`r`n
     if ($maxVal -lt $FLOOR) { continue }
     
     [int]$startK = [Math]::Max($minX, [Math]::Ceiling($FLOOR / $multiplier))
-    [int]$endK   = [Math]::Min($maxX, [Math]::Floor($CEILING / $multiplier))
+    [int]$endK = [Math]::Min($maxX, [Math]::Floor($CEILING / $multiplier))
 
     if ($startK -le $endK) {
       [int]$count = ($endK - $startK) + 1
@@ -34,4 +34,4 @@ foreach ($item in $([System.IO.File]::ReadAllLines($ABSOLUTE_PATH) -split "[`r`n
   }
 }
 
-Write-Output "${GREEN}Invalid IDS SUM: $ID_COUNT${RESET}"
+Write-Host "${GREEN}Invalid IDS SUM: $ID_COUNT${RESET}"

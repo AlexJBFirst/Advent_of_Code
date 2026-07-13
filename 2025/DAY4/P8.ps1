@@ -1,71 +1,71 @@
 Param(
-	[Parameter(ValueFromPipeline, Position=0)][String]$FILE_NAME,
-	[Parameter(ValueFromPipeline, Position=1)][bool]$DRAW_TO_TERMINAL=$false
+  [Parameter(ValueFromPipeline, Position = 0)][String]$FILE_NAME,
+  [Parameter(ValueFromPipeline, Position = 1)][bool]$DRAW_TO_TERMINAL = $false
 )
 
-[string]$GREEN="`e[32m"
-[string]$RESET="`e[0m"
+[string]$GREEN = "`e[32m"
+[string]$RESET = "`e[0m"
 [string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
 
-function file_parser(){
+function file_parser() {
   [array]$FILE_CONTENT = [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)
-  [array]$LARGE_GRID=@()
+  [array]$LARGE_GRID = @()
   
-  for($a=0;$a -lt $FILE_CONTENT.count;$a++){
+  for ($a = 0; $a -lt $FILE_CONTENT.count; $a++) {
     [array]$Symbol_array = @()
     
-    for ($b=0;$b -lt $FILE_CONTENT[$a].Length;$b++){
-      if ($FILE_CONTENT[$a][$b] -eq '@'){
-          $Symbol_array += [int]1
-          continue
-        }
-        $Symbol_array += [int]0
+    for ($b = 0; $b -lt $FILE_CONTENT[$a].Length; $b++) {
+      if ($FILE_CONTENT[$a][$b] -eq '@') {
+        $Symbol_array += [int]1
+        continue
+      }
+      $Symbol_array += [int]0
     }
 
-    $LARGE_GRID += ,$Symbol_array
+    $LARGE_GRID += , $Symbol_array
   }
 
   return $LARGE_GRID
 }
 
-function roll_finder(){
+function roll_finder() {
   [int]$COUNTER = 0
   [array]$ROLLS_INDEXES = @()
 
-  for($a=0;$a -lt $LARGE_GRID.count;$a++){
-    for($b=0;$b -lt $LARGE_GRID[$a].count;$b++){
+  for ($a = 0; $a -lt $LARGE_GRID.count; $a++) {
+    for ($b = 0; $b -lt $LARGE_GRID[$a].count; $b++) {
       [int]$ROLL_COUNT = 0
 
-      if($LARGE_GRID[$a][$b] -eq 0){continue}
+      if ($LARGE_GRID[$a][$b] -eq 0) { continue }
       
-      for($c=($a-1);$c -le ($a+1);$c++){
-        if($c -lt 0 -or $c -gt ($LARGE_GRID.count - 1)){continue}
+      for ($c = ($a - 1); $c -le ($a + 1); $c++) {
+        if ($c -lt 0 -or $c -gt ($LARGE_GRID.count - 1)) { continue }
 
-        for($d=($b-1);$d -le ($b+1);$d++){
-          if ($d -lt 0 -or ($c -eq $a -and $b -eq $d) -or $d -gt ($LARGE_GRID[$a].count - 1)){continue}
+        for ($d = ($b - 1); $d -le ($b + 1); $d++) {
+          if ($d -lt 0 -or ($c -eq $a -and $b -eq $d) -or $d -gt ($LARGE_GRID[$a].count - 1)) { continue }
 
-          if ($LARGE_GRID[$c][$d] -eq 1){$ROLL_COUNT++}
+          if ($LARGE_GRID[$c][$d] -eq 1) { $ROLL_COUNT++ }
         }
       }
       
-      if ($ROLL_COUNT -lt 4){
+      if ($ROLL_COUNT -lt 4) {
         $COUNTER++
-        $ROLLS_INDEXES += ,@($a,$b)
+        $ROLLS_INDEXES += , @($a, $b)
       }
     }
   }
 
-  foreach ($INDEX in $ROLLS_INDEXES){
+  foreach ($INDEX in $ROLLS_INDEXES) {
     $LARGE_GRID[$INDEX[0]][$INDEX[1]] = 0
   }
 
   return $COUNTER
 }
 
-function draw(){
-  foreach($row in $LARGE_GRID){
-    foreach($element in $row){
-      if ($element -eq 0){
+function draw() {
+  foreach ($row in $LARGE_GRID) {
+    foreach ($element in $row) {
+      if ($element -eq 0) {
         Write-host "." -NoNewline -ForegroundColor RED
         continue
       }
@@ -77,13 +77,13 @@ function draw(){
 
 [array]$LARGE_GRID = file_parser
 
-while ($TMP_SUM -ne 0){
-  if ($DRAW_TO_TERMINAL -eq $true){draw;""}
+while ($TMP_SUM -ne 0) {
+  if ($DRAW_TO_TERMINAL -eq $true) { draw; "" }
 
   [int]$TMP_SUM = roll_finder
   $SUM += $TMP_SUM
 }
 
-if ($DRAW_TO_TERMINAL -eq $true){draw}
+if ($DRAW_TO_TERMINAL -eq $true) { draw }
 
-"${GREEN}There are $SUM rolls of paper can be accessed by a forklift${RESET}"
+Write-Host "${GREEN}There are $SUM rolls of paper can be accessed by a forklift${RESET}"

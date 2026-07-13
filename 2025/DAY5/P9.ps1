@@ -1,22 +1,23 @@
 Param(
-	[Parameter(ValueFromPipeline, Position=0)][String]$FILE_NAME
+  [Parameter(ValueFromPipeline, Position = 0)][String]$FILE_NAME
 )
 
-[string]$GREEN="`e[32m"
-[string]$RESET="`e[0m"
+[string]$GREEN = "`e[32m"
+[string]$RESET = "`e[0m"
 [string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
 [int64]$SUM = 0
 
-function file_parser(){
-  [array]$RANGEs=@()
-  [array]$IDs=@() 
+function file_parser() {
+  [array]$RANGEs = @()
+  [array]$IDs = @() 
   
-  foreach($string in [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)){
-    if ($string -match '^\d+-\d+'){
+  foreach ($string in [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) {
+    if ($string -match '^\d+-\d+') {
       [int64]$MIN, [int64]$MAX = $string -split "-"
-      $RANGEs += ,@($MIN,$MAX)
+      $RANGEs += , @($MIN, $MAX)
       continue
-    }elseif('' -eq $string){continue}
+    }
+    elseif ('' -eq $string) { continue }
 
     $IDs += [int64]$string
   }
@@ -24,21 +25,21 @@ function file_parser(){
   return $RANGEs, $IDs
 }
 
-function fresh_checker(){
+function fresh_checker() {
   param (
     [Int64]$ID
   )
 
-  foreach($RANGE in $RANGEs){
-    if($ID -le $RANGE[1] -and $ID -ge $RANGE[0]){return $true}
+  foreach ($RANGE in $RANGEs) {
+    if ($ID -le $RANGE[1] -and $ID -ge $RANGE[0]) { return $true }
   }
 }
 
 [array]$RANGEs, [array]$IDs = file_parser
 
-foreach ($ID in $IDs){
+foreach ($ID in $IDs) {
   [bool]$TEST = fresh_checker -ID $ID
-  if ($TEST -eq $true){$SUM++}
+  if ($TEST -eq $true) { $SUM++ }
 }
 
-"${GREEN}There are $SUM available fresh ingredients${RESET}"
+Write-Host "${GREEN}There are $SUM available fresh ingredients${RESET}"
