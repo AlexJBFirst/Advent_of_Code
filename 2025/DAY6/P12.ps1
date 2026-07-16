@@ -4,9 +4,9 @@ Param(
 
 [string]$GREEN = "`e[32m"
 [string]$RESET = "`e[0m"
-[string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
 
 function fileparser() {
+  [string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
   [array]$TMP_PROBLEMS = @()
 
   foreach ($item in [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) {

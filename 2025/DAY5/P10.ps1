@@ -4,10 +4,10 @@ Param(
 
 [string]$GREEN = "`e[32m"
 [string]$RESET = "`e[0m"
-[string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
 [int64]$SUM = 0
 
 function file_parser() {
+  [string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
   [array]$RANGEs = @()
   
   foreach ($string in [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) {
