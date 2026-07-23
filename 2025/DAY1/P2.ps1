@@ -16,22 +16,19 @@ function DEBUG {
   )
 
   if ($DEBUG_FLAG) {
-    Write-Host $DEBUG_STRING -ForegroundColor Red
+    Write-Host "$DEBUG_STRING" -ForegroundColor Red
   }
 }
 
-foreach ($lines in [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) {
-  [string]$DIRECTION = $lines[0]
-  [int]$NUMBER = $lines[1..($lines.Length - 1)] -join ""
+foreach ($line in [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) {
+  [string]$DIRECTION = $line[0]
+  [int]$Line_length = $line.Length
+  [int]$NUMBER = $line[1..($Line_length - 1)] -join ""
   if ($DIRECTION -eq 'L') {
     DEBUG "DIAL: $DIAL - $NUMBER"
-    
-    if ($DIAL -eq 0) {
-      $DIAL += 100
-    }
+    if ($DIAL -eq 0) { $DIAL += 100 }
     
     $DIAL -= $NUMBER
-    
     while ($DIAL -lt 0) {
       $COUNT++
       DEBUG "Count is: $COUNT ___ DIAL: $DIAL"
@@ -48,7 +45,6 @@ foreach ($lines in [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) {
   else {
     DEBUG "DIAL: $DIAL + $NUMBER"
     $DIAL += $NUMBER
-    
     while ($DIAL -ge 100 ) {
       DEBUG "DIAL: $DIAL"
       $DIAL -= 100

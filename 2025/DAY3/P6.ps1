@@ -16,10 +16,10 @@ function nested_sum {
 
   [int]$MAX = 0
   [int]$MAX_INDEX = 0
-  
-  for ($a = $INDEX; $a -lt ($JOLTAGE_BANK.Length - $GOAL_DEPTH + $CURRENT_DEPTH + 1); $a++) {
+  [int]$JOLTAGE_BANK_Length = $JOLTAGE_BANK.Length
+  [int]$a_goal = $JOLTAGE_BANK_Length - $GOAL_DEPTH + $CURRENT_DEPTH + 1
+  for ($a = $INDEX; $a -lt $a_goal; $a++) {
     [int]$N = "$($JOLTAGE_BANK[$a])"
-    
     if ($MAX -lt $N) {
       $MAX = $N
       $MAX_INDEX = $a

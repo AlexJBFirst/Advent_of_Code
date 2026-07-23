@@ -25,20 +25,18 @@ function file_parser() {
   return $RANGEs, $IDs
 }
 
-function fresh_checker() {
-  param (
-    [Int64]$ID
-  )
-
+function fresh_checker([array]$RANGEs, [Int64]$ID) {
   foreach ($RANGE in $RANGEs) {
-    if ($ID -le $RANGE[1] -and $ID -ge $RANGE[0]) { return $true }
+    [int64]$RANGE_0 = $RANGE[0]
+    [int64]$RANGE_1 = $RANGE[1]
+    if ($ID -le $RANGE_1 -and $ID -ge $RANGE_0) { return $true }
   }
 }
 
 [array]$RANGEs, [array]$IDs = file_parser
 
 foreach ($ID in $IDs) {
-  [bool]$TEST = fresh_checker -ID $ID
+  [bool]$TEST = fresh_checker -ID $ID -RANGEs $RANGEs
   if ($TEST -eq $true) { $SUM++ }
 }
 

@@ -9,81 +9,88 @@ function file_parser() {
   [string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
   [array]$FILE_CONTENT = [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)
   [int]$STRING_COUNT = $FILE_CONTENT.Count
-  [System.Object]$JUNCTION_BOXes = [System.Tuple]::Create([array[]]::new($STRING_COUNT))
-  
+  [array]$X = [int[]]::new($STRING_COUNT)
+  [array]$Y = [int[]]::new($STRING_COUNT)
+  [array]$Z = [int[]]::new($STRING_COUNT)
   for ($a = 0; $a -lt $STRING_COUNT; $a++) {
     [string]$line = $FILE_CONTENT[$a]
-    [array]$TMP_ARR = @()
-    foreach ($element in $line -split ',') { $TMP_ARR += [int]$element }
-    $JUNCTION_BOXes.item1[$a] = $TMP_ARR
+    $X[$a], $Y[$a], $Z[$a] = $line -split ','
   }
   
-  return $JUNCTION_BOXes, $STRING_COUNT
+  return $X, $Y, $Z, $STRING_COUNT
 }
 
-function euclid_dist_solver() {
-  [int]$Boxes_count = $JUNCTION_BOXes.item1.count
-  [int64]$Termial = ($Boxes_count * ($Boxes_count + 1)) / 2 - $Boxes_count
-  [System.Object]$Distances = [System.Tuple]::Create([array[]]::new($Termial))
+function euclid_dist_solver([array]$X, [array]$Y, [array]$Z, [int]$STRING_COUNT) {
+  [int64]$Termial = ($STRING_COUNT * ($STRING_COUNT + 1)) / 2 - $STRING_COUNT
+  [System.Object]$Initializator_of_value_tuple = [System.ValueTuple[int64, string, string, int, int][]]::new($Termial)
+  [System.Object]$Distances = [System.Collections.Generic.List[[System.ValueTuple[int64, string, string, int, int]]]]::new($Initializator_of_value_tuple)
+  [System.Object]$Value_Tuple = [System.ValueTuple]::Create([int64]0,[string]'',[string]'',[int]0,[int]0)
   [int]$Distances_index = 0
-
-  for ($a = 0; $a -lt ($Boxes_count - 1); $a++) {
-    [array]$item1 = $JUNCTION_BOXes.item1[$a]
-
-    for ($b = ($a + 1); $b -lt $Boxes_count; $b++) {
-      [array]$item2 = $JUNCTION_BOXes.item1[$b]
-      [int]$NUM1 = $item1[0] - $item2[0]
-      [int]$NUM2 = $item1[1] - $item2[1]
-      [int]$NUM3 = $item1[2] - $item2[2]
-      [int64]$EUC_A_B = $NUM1 * $NUM1 + $NUM2 * $NUM2 + $NUM3 * $NUM3
-      [int64]$item1_1 = "$($item1[0])$($item1[1])$($item1[2])"
-      [int64]$item2_1 = "$($item2[0])$($item2[1])$($item2[2])"
-      $Distances.item1[$Distances_index] = @($EUC_A_B, $item1_1, $item2_1, $item1, $item2)
+  [int]$a_goal = $STRING_COUNT - 1
+  for ($a = 0; $a -lt $a_goal; $a++) {
+    [int]$X_a = $X[$a]
+    [int]$Y_a = $Y[$a]
+    [int]$Z_a = $Z[$a]
+    [int]$B_start_index = $a + 1
+    for ($b = $B_start_index; $b -lt $STRING_COUNT; $b++) {
+      [int]$X_b = $X[$b]
+      [int]$Y_b = $Y[$b]
+      [int]$Z_b = $Z[$b]
+      [int]$NUM1 = $X_a - $X_b
+      [int]$NUM2 = $Y_a - $Y_b
+      [int]$NUM3 = $Z_a - $Z_b
+      $Value_Tuple.item1 = [int64]($NUM1 * $NUM1 + $NUM2 * $NUM2 + $NUM3 * $NUM3)
+      $Value_Tuple.item2 = [string]"$X_a$Y_a$Z_a"
+      $Value_Tuple.item3 = [string]"$X_b$Y_b$Z_b"
+      $Value_Tuple.item4 = $X_a
+      $Value_Tuple.item5 = $X_b
+      $Distances[$Distances_index] = $Value_Tuple
       $Distances_index++
     }
   }
-
-  [array]$SORTED_MAP = $Distances.item1 | Sort-Object { $_[0][0] }
-  return $SORTED_MAP  
+  
+  $Distances.sort()
+  return $Distances, $Termial
 }
 
-function link_finder() {
-  [array]$LINKED_CIRCUIT = @()
-  [array]$INDEXES = @()
-  $INDEXES += 0
-  $LINKED_CIRCUIT += [int64]$SORTED_MAP[0][1]
-  $LINKED_CIRCUIT += [int64]$SORTED_MAP[0][2]
-  
-  while ($LINKED_CIRCUIT.Count -ne $STRING_COUNT) {
-    for ($a = 1; $a -lt $SORTED_MAP.count; $a++) {
-      if ($a -in $INDEXES) { continue }
-      [int64]$LINK1 = $SORTED_MAP[$a][1]
-      [int64]$LINK2 = $SORTED_MAP[$a][2]
-
-      if ($LINK1 -in $LINKED_CIRCUIT) {
-        if ($LINK2 -in $LINKED_CIRCUIT) {
-          $INDEXES += $a
+function link_finder([System.Object]$SORTED_MAP, [int]$STRING_COUNT, [int]$SORTED_MAP_count) {
+  [hashtable]$LINKED_CIRCUIT = @{}
+  [hashtable]$INDEXES = @{}
+  [System.Object]$LINK = $SORTED_MAP[0]
+  [int]$LINKS=2
+  $LINKED_CIRCUIT[$LINK.item2] = 1
+  $LINKED_CIRCUIT[$LINK.item3] = 1
+  while ($LINKS -ne $STRING_COUNT) {
+    for ($a = 1; $a -lt $SORTED_MAP_count; $a++) {
+      if ($INDEXES[$a]) { continue }
+      
+      [string]$LINK_0 = $SORTED_MAP[$a].item2
+      [string]$LINK_1 = $SORTED_MAP[$a].item3
+      if ($LINKED_CIRCUIT[$LINK_0]) {
+        if ($LINKED_CIRCUIT[$LINK_1]) {
+          $INDEXES[$a] = $a
           continue
         }
         
-        $LINKED_CIRCUIT += $LINK2
-        $INDEXES += $a
+        $LINKED_CIRCUIT[$LINK_1] = 1
+        $INDEXES[$a] = $a
         break
-      }
-      elseif ($LINK2 -in $LINKED_CIRCUIT) {
-        $LINKED_CIRCUIT += $LINK1
-        $INDEXES += $a
+      } elseif ($LINKED_CIRCUIT[$LINK_1]) {
+        $LINKED_CIRCUIT[$LINK_0] = 1
+        $INDEXES[$a] = $a
         break
       }
     }
+    
+    $LINKS++
   }
   
-  return $SORTED_MAP[$a]
+  return $SORTED_MAP[$a].item4, $SORTED_MAP[$a].item5
 }
 
-[System.Object]$JUNCTION_BOXes, [int]$STRING_COUNT = file_parser
-[array]$SORTED_MAP = euclid_dist_solver
-[array]$GOAL_ELEMENT = link_finder
-[int64]$SUM = $GOAL_ELEMENT[3][0] * $GOAL_ELEMENT[4][0]
+[array]$X, [array]$Y, [array]$Z, [int]$STRING_COUNT = file_parser
+[System.Object]$SORTED_MAP, [int]$SORTED_MAP_count = euclid_dist_solver -X $X -Y $Y -Z $Z -STRING_COUNT $STRING_COUNT
+[int]$X_a, [int]$X_b = link_finder -SORTED_MAP $SORTED_MAP -STRING_COUNT $STRING_COUNT -SORTED_MAP_count $SORTED_MAP_count
+[int64]$SUM = $X_a * $X_b
 
 Write-Host "${GREEN}Multiplication of X coordinates results in: $SUM.${RESET}"

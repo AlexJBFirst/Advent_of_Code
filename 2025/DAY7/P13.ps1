@@ -9,7 +9,6 @@ Param(
 function file_parser() {
   [string]$ABSOLUTE_PATH = Resolve-Path $FILE_NAME
   [array]$TACHYON_MANIFOLD = @()
-  
   foreach ($line in [System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) {
     [System.Object]$SB = [System.Text.StringBuilder]::new($line)
     $TACHYON_MANIFOLD += , $SB
@@ -18,23 +17,26 @@ function file_parser() {
   return $TACHYON_MANIFOLD
 }
 
-function beam_splitter() {
+function beam_splitter([array]$TACHYON_MANIFOLD) {
   [int]$SUM = 0
-
-  for ($a = 0; $a -lt $TACHYON_MANIFOLD[0].Length; $a++) {
-    if ($($TACHYON_MANIFOLD[0][$a]) -eq 'S') {
+  [int]$TACHYON_MANIFOLD_0_Length = $TACHYON_MANIFOLD[0].Length
+  for ($a = 0; $a -lt $TACHYON_MANIFOLD_0_Length; $a++) {
+    [System.Object]$TACHYON_MANIFOLD_0 = $TACHYON_MANIFOLD[0]
+    [char]$TACHYON_MANIFOLD_0_a = $TACHYON_MANIFOLD_0[$a]
+    if ($TACHYON_MANIFOLD_0_a -eq 'S') {
       [array]$INDEXES += , $a
-      if ($DRAW -eq $true) { write-host "$($TACHYON_MANIFOLD[0])" }
+      if ($DRAW -eq $true) { write-host "$TACHYON_MANIFOLD_0" }
       break
     }
   }
   
-  for ($a = 1; $a -lt $TACHYON_MANIFOLD.count; $a++) {
+  [int]$TACHYON_MANIFOLD_count = $TACHYON_MANIFOLD.count
+  for ($a = 1; $a -lt $TACHYON_MANIFOLD_count; $a++) {
     [array]$TMP_INDEX_ARRAY = @()
-    
-    if ("^" -notin "$($TACHYON_MANIFOLD[$a])".GetEnumerator()) {
+    [string]$TACHYON_MANIFOLD_a = $TACHYON_MANIFOLD[$a]
+    if ("^" -notin $TACHYON_MANIFOLD_a.GetEnumerator()) {
       if ($DRAW -eq $true) {
-        [System.Object]$SB = [System.Text.StringBuilder]::new("$($TACHYON_MANIFOLD[$a])")
+        [System.Object]$SB = [System.Text.StringBuilder]::new($TACHYON_MANIFOLD_a)
         foreach ($index in $INDEXES) { $SB[$index] = '|' }
         write-host "$SB"
       }
@@ -43,27 +45,32 @@ function beam_splitter() {
     }
     
     for ($b = 0; $b -lt $INDEXES.count; $b++) {
-      if ($TACHYON_MANIFOLD[$a][$INDEXES[$b]] -eq '^') {
+      [int]$INDEXES_b = $INDEXES[$b]
+      [char]$TACHYON_MANIFOLD_a_b = $TACHYON_MANIFOLD_a[$INDEXES_b]
+      if ($TACHYON_MANIFOLD_a_b -eq '^') {
         $SUM++
-        [int]$LEFT = $INDEXES[$b] - 1
-        [int]$RIGHT = $INDEXES[$b] + 1
-        
+        [int]$LEFT = $INDEXES_b - 1
+        [int]$RIGHT = $INDEXES_b + 1
         if ($LEFT -notin $TMP_INDEX_ARRAY) { $TMP_INDEX_ARRAY += $LEFT }
         if ($RIGHT -notin $TMP_INDEX_ARRAY) { $TMP_INDEX_ARRAY += $RIGHT }
       }
       else {
-        if ($INDEXES[$b] -notin $TMP_INDEX_ARRAY) { $TMP_INDEX_ARRAY += $INDEXES[$b] }
+        if ($INDEXES_b -notin $TMP_INDEX_ARRAY) { $TMP_INDEX_ARRAY += $INDEXES_b }
       }
     }
     
     [array]$INDEXES = $TMP_INDEX_ARRAY
-    if ($DRAW -eq $true) { write-host "$($TACHYON_MANIFOLD[$a])" }
+    if ($DRAW -eq $true) { 
+      [System.Object]$SB = [System.Text.StringBuilder]::new($TACHYON_MANIFOLD_a)
+      foreach ($index in $INDEXES) { $SB[$index] = '|' }
+      write-host "$SB"
+    }
   }
 
   return $SUM
 }
 
 [array]$TACHYON_MANIFOLD = file_parser
-[int]$SUM = beam_splitter
+[int]$SUM = beam_splitter -TACHYON_MANIFOLD $TACHYON_MANIFOLD
 
 Write-Host "${GREEN}There are $SUM many times beam will split${RESET}"

@@ -8,16 +8,13 @@ Param(
 [int64]$ID_COUNT = 0
 
 foreach ($item in $([System.IO.File]::ReadAllLines($ABSOLUTE_PATH)) -split ',') {
-  if ($item.Length -eq 0) { continue }
+  [int]$item_length = $item.Length
+  if ($item_length -eq 0) { continue }
 
   [int64]$LOW, [int64]$HIGH = $item -split '-'
-
   for ($i = $LOW; $i -le $HIGH; $i++) {
-    if ($i -match "^(.+)\1+$") {
-      $ID_COUNT += $i
-    }
+    if ($i -match "^(.+)\1+$") { $ID_COUNT += $i }
   }
-
 }
 
 Write-Host "${GREEN}Invalid IDS SUM: $ID_COUNT${RESET}"
